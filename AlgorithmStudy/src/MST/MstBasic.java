@@ -5,8 +5,10 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class MstBasic {
@@ -142,6 +144,45 @@ public class MstBasic {
 			if(!find(edge.getFromNode()).equals(find(edge.getToNode()))) {
 				union(edge.getFromNode(), edge.getToNode());
 				mst.add(edge);
+			}
+		}
+		
+		return mst;
+	}
+	
+	public List<Edge> getMstByPrim(String startNode) throws Exception{
+		Graph graph = makeGraph("src/graph.txt");
+		
+		List<Edge> mst = new ArrayList<>();
+		List<Edge> edges = graph.getEdges();
+		
+		Map<String, List<Edge>> adjacentMap = new HashMap<>();
+		List<String> visited = new ArrayList<>();
+		PriorityQueue<Edge> candidate = new PriorityQueue<>();
+		
+		for(int i=0; i<graph.getNumOfVertex(); i++)
+			adjacentMap.put(String.valueOf(i+1), new ArrayList<Edge>());
+		
+		for(Edge e : edges) {
+			String fromNode = e.getFromNode();
+			String toNode = e.getToNode();
+			adjacentMap.get(fromNode).add(e);
+			adjacentMap.get(toNode).add(e);
+		}
+		
+		visited.add(startNode);
+		candidate.addAll(adjacentMap.get(startNode));
+		
+		while(!candidate.isEmpty()) {
+			Edge selected = candidate.poll();
+			if(!visited.contains(selected.getToNode())) {
+				visited.add(selected.getToNode());
+				mst.add(selected);
+				
+				for(Edge e : adjacentMap.get(selected.getToNode())) {
+					if(!mst.contains(e))
+						candidate.add(e);
+				}
 			}
 		}
 		
